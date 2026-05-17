@@ -1,0 +1,54 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: bruskapp-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - bruskapp-frontend
+      - bruskapp-backend
+      - bruskapp-admin
+    networks:
+      - bruskapp-network
+    restart: unless-stopped
+
+  bruskapp-frontend:
+    build:
+      context: ./bruskapp-frontend
+      dockerfile: Dockerfile
+    container_name: bruskapp-frontend
+    expose:
+      - "3000"
+    networks:
+      - bruskapp-network
+    restart: unless-stopped
+
+  bruskapp-backend:
+    build:
+      context: ./bruskapp-backend
+      dockerfile: Dockerfile
+    container_name: bruskapp-backend
+    expose:
+      - "4000"
+    networks:
+      - bruskapp-network
+    restart: unless-stopped
+
+  bruskapp-admin:
+    build:
+      context: ./bruskapp-admin
+      dockerfile: Dockerfile
+    container_name: bruskapp-admin
+    expose:
+      - "3000"
+    networks:
+      - bruskapp-network
+    restart: unless-stopped
+
+networks:
+  bruskapp-network:
+    driver: bridge
