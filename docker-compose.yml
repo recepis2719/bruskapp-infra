@@ -34,6 +34,8 @@ services:
     container_name: bruskapp-backend
     expose:
       - "4000"
+    volumes:
+      - backend-data:/app/data
     networks:
       - bruskapp-network
     restart: unless-stopped
@@ -48,6 +50,9 @@ services:
     networks:
       - bruskapp-network
     restart: unless-stopped
+
+volumes:
+  backend-data:
 
 networks:
   bruskapp-network:
