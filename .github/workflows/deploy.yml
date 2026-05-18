@@ -1,0 +1,30 @@
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docker-compose.yml'
+      - 'nginx/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Tailscale SSH
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTH_KEY }}
+          host: bruskapp-infra-cd
+          ssh-key: true
+
+      - name: Deploy
+        run: |
+          ssh -o StrictHostKeyChecking=no root@100.83.3.22 "
+            cd /opt &&
+            git pull origin main &&
+            docker compose up -d --build
+          "
