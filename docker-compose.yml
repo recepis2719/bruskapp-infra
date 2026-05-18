@@ -16,6 +16,21 @@ services:
       - bruskapp-network
     restart: unless-stopped
 
+  postgres:
+    image: postgres:16-alpine
+    container_name: bruskapp-postgres
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_DB: bruskapp
+      POSTGRES_USER: bruskapp
+      POSTGRES_PASSWORD: bruskapp-postgres-pw
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - bruskapp-network
+    restart: unless-stopped
+
   bruskapp-frontend:
     build:
       context: ./bruskapp-frontend
@@ -34,6 +49,12 @@ services:
     container_name: bruskapp-backend
     expose:
       - "4000"
+    environment:
+      DATABASE_URL: postgresql://bruskapp:bruskapp-postgres-pw@postgres:5432/bruskapp
+      JWT_SECRET: DG+BiqBr51psYrdB2eyp91fAhDiEhsGLyH979TVbTT4=
+    depends_on:
+      postgres:
+        condition: service_started
     volumes:
       - backend-data:/app/data
     networks:
@@ -53,6 +74,7 @@ services:
 
 volumes:
   backend-data:
+  pgdata:
 
 networks:
   bruskapp-network:
